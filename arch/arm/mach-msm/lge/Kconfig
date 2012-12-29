@@ -50,24 +50,19 @@ config LGE_EARLYSUSPEND_FUNC_TIME
 	  This file shows the average and max tiem of each
 	  earlysuspend/lateresume function.
 
-config LGE_QC_LCDC_LUT
-     bool "Set initial Qualcomm LCDC lut"
-         default n
-         depends on MACH_LGE
-         help
-                Set initail Qualcomm LCDC Look Up Table.
-config LGE_KCAL
-     bool "Interface to calibrate LCD color temperature"
-         default n
-         depends on MACH_LGE
-         help
-                Interface to calibrate LCD color temperature
-config LGE_KCAL_QLUT
-     bool "Interface to calibrate LCD color temperature by QLUT"
-         default n
-         depends on MACH_LGE && LGE_QC_LCDC_LUT && LGE_KCAL
-         help
-                Interface to calibrate LCD color temperature by QLUT
+config UPDATE_LCDC_LUT
+	bool "Set initial Qualcomm LCDC lut"
+	default n
+	depends on MACH_LGE
+	help
+	  Set initial Qualcomm LCDC Look Up Table.
+
+config LCD_KCAL
+	bool "Interface to calibrate LCD color temperature"
+	default n
+	depends on MACH_LGE && UPDATE_LCDC_LUT
+	help
+	  Interface to calibrate LCD color temperature
 
 config LGE_LASTLBA_BACKUPGPT
 	bool "Force to find Backup GPT at LAST LBA"

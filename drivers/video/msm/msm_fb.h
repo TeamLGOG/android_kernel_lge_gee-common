@@ -126,7 +126,6 @@ struct msm_fb_data_type {
 	__u32 channel_irq;
 
 	struct mdp_dma_data *dma;
-	struct device_attribute dev_attr;
 	void (*dma_fnc) (struct msm_fb_data_type *mfd);
 	int (*cursor_update) (struct fb_info *info,
 			      struct fb_cursor *cursor);
@@ -134,9 +133,10 @@ struct msm_fb_data_type {
 			      struct fb_cmap *cmap);
 	int (*do_histogram) (struct fb_info *info,
 			      struct mdp_histogram_data *hist);
+	int (*start_histogram) (struct mdp_histogram_start_req *req);
+	int (*stop_histogram) (struct fb_info *info, uint32_t block);
 	void (*vsync_ctrl) (int enable);
-	void (*vsync_init) (int cndx);
-	void *vsync_show;
+	void (*vsync_init) (int cndx, struct msm_fb_data_type *mfd);
 	void *cursor_buf;
 	void *cursor_buf_phys;
 
@@ -187,8 +187,6 @@ struct msm_fb_data_type {
 	u32 mdp_rev;
 	u32 writeback_state;
 	bool writeback_active_cnt;
-	boolean resume_state;
-	boolean backlight_ctrl_ongoing;
 	int cont_splash_done;
 	u32 acq_fen_cnt;
 	struct sync_fence *acq_fen[MDP_MAX_FENCE_FD];
@@ -206,7 +204,6 @@ struct msm_fb_data_type {
 	struct work_struct commit_work;
 	void *msm_fb_backup;
 	boolean panel_driver_on;
-	int vsync_sysfs_created;
 };
 struct msm_fb_backup_type {
 	struct fb_info info;
@@ -236,17 +233,15 @@ int msm_fb_signal_timeline(struct msm_fb_data_type *mfd);
 #ifdef CONFIG_FB_BACKLIGHT
 void msm_fb_config_backlight(struct msm_fb_data_type *mfd);
 #endif
-extern int poweroff_charging;
+
 void fill_black_screen(void);
 void unfill_black_screen(void);
 int msm_fb_check_frame_rate(struct msm_fb_data_type *mfd,
 				struct fb_info *info);
 
-extern boolean mdp4_overlay_used(void);
 #ifdef CONFIG_FB_MSM_LOGO
 #define INIT_IMAGE_FILE "/initlogo.rle"
-extern int load_565rle_image(char *filename, bool bf_supported);
-extern int draw_rgb888_screen(void);
+int load_565rle_image(char *filename, bool bf_supported);
 #endif
 
 #endif /* MSM_FB_H */

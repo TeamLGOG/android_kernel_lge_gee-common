@@ -38,30 +38,16 @@
 
 #include "msm_fb_panel.h"
 
-#if defined(CONFIG_FB_MSM_MIPI_SAMSUNG_OLED_VIDEO_HD_PT)
-#define MDP_HANG_DEBUG
-#endif
 extern uint32 mdp_hw_revision;
 extern ulong mdp4_display_intf;
 extern spinlock_t mdp_spin_lock;
-#ifdef MDP_UNDERFLOW_RESET_CTRL_CMD
-extern spinlock_t mixer_reset_lock;
-#endif
 extern int mdp_rev;
 extern int mdp_iommu_split_domain;
 extern struct mdp_csc_cfg mdp_csc_convert[4];
-
 extern struct workqueue_struct *mdp_hist_wq;
 
 extern uint32 mdp_intr_mask;
 
-extern int mdp_lut_i;
-extern int mdp_lut_push;
-extern int mdp_lut_push_i;
-extern struct mutex mdp_lut_push_sem;
-#ifdef MDP_HANG_DEBUG
-extern void mdp4_dump_regs(void);//JSJEONG
-#endif
 #define MDP4_REVISION_V1		0
 #define MDP4_REVISION_V2		1
 #define MDP4_REVISION_V2_1	2
@@ -103,6 +89,7 @@ struct mdp_table_entry {
 extern struct mdp_ccs mdp_ccs_yuv2rgb ;
 extern struct mdp_ccs mdp_ccs_rgb2yuv ;
 extern unsigned char hdmi_prim_display;
+extern unsigned char hdmi_prim_resolution;
 
 struct vsync {
 	ktime_t vsync_time;
@@ -867,7 +854,6 @@ int mdp_histogram_block2mgmt(uint32_t block, struct mdp_hist_mgmt **mgmt);
 void mdp_histogram_handle_isr(struct mdp_hist_mgmt *mgmt);
 void __mdp_histogram_kickoff(struct mdp_hist_mgmt *mgmt);
 void __mdp_histogram_reset(struct mdp_hist_mgmt *mgmt);
-unsigned int mdp_check_suspended(void);
 void mdp_footswitch_ctrl(boolean on);
 
 #ifdef CONFIG_FB_MSM_MDP303
@@ -888,13 +874,8 @@ static inline int mdp4_overlay_dsi_state_get(void)
 {
 	return 0;
 }
-static inline void mdp4_iommu_detach(void)
-{
-	/*empty */
-}
 #endif
 
-void mdp_vid_quant_set(void);
 #ifndef CONFIG_FB_MSM_MDP40
 static inline void mdp_dsi_cmd_overlay_suspend(struct msm_fb_data_type *mfd)
 {
@@ -913,4 +894,33 @@ int mdp_ppp_v4l2_overlay_play(struct fb_info *info,
 	unsigned long srcp0_addr, unsigned long srcp0_size,
 	unsigned long srcp1_addr, unsigned long srcp1_size);
 
+#ifdef CONFIG_FB_MSM_DTV
+void mdp_vid_quant_set(void);
+#else
+static inline void mdp_vid_quant_set(void)
+{
+	/* empty */
+}
+#endif
+
+#ifdef CONFIG_UPDATE_LCDC_LUT
+#define R_MASK    0x00ff0000
+#define G_MASK    0x000000ff
+#define B_MASK    0x0000ff00
+#define R_SHIFT   16
+#define G_SHIFT   0
+#define B_SHIFT   8
+#define lut2r(lut) ((lut & R_MASK) >> R_SHIFT)
+#define lut2g(lut) ((lut & G_MASK) >> G_SHIFT)
+#define lut2b(lut) ((lut & B_MASK) >> B_SHIFT)
+
+#ifdef CONFIG_LCD_KCAL
+#define NUM_QLUT  256
+#define MAX_KCAL_V (NUM_QLUT-1)
+#define scaled_by_kcal(rgb, kcal) \
+		(((((unsigned int)(rgb) * (unsigned int)(kcal)) << 16) / \
+		(unsigned int)MAX_KCAL_V) >> 16)
+#endif
+int mdp_preset_lut_update_lcdc(struct fb_cmap *cmap, uint32_t *internal_lut);
+#endif
 #endif /* MDP_H */

@@ -14,7 +14,6 @@
 #define __HDMI_MSM_H__
 
 #include <mach/msm_iomap.h>
-#include <linux/switch.h>
 #include "external_common.h"
 /* #define PORT_DEBUG */
 
@@ -54,7 +53,6 @@ struct hdmi_msm_cec_msg {
 struct hdmi_msm_state_type {
 	boolean panel_power_on;
 	boolean hpd_initialized;
-	boolean hpd_state_in_isr;
 #ifdef CONFIG_SUSPEND
 	boolean pm_suspended;
 #endif
@@ -63,7 +61,7 @@ struct hdmi_msm_state_type {
 	boolean hpd_cable_chg_detected;
 	boolean full_auth_done;
 	boolean hpd_during_auth;
-	struct work_struct hpd_state_work, hpd_read_work;
+	struct work_struct hpd_state_work;
 	struct timer_list hpd_state_timer;
 	struct completion ddc_sw_done;
 
@@ -100,7 +98,7 @@ struct hdmi_msm_state_type {
 
 #define CEC_QUEUE_SIZE		16
 #define CEC_QUEUE_END	 (hdmi_msm_state->cec_queue_start + CEC_QUEUE_SIZE)
-#define RETRANSMIT_MAX_NUM	7
+#define RETRANSMIT_MAX_NUM	5
 #endif /* CONFIG_FB_MSM_HDMI_MSM_PANEL_CEC_SUPPORT */
 
 	int irq;
@@ -108,19 +106,11 @@ struct hdmi_msm_state_type {
 	struct clk *hdmi_app_clk;
 	struct clk *hdmi_m_pclk;
 	struct clk *hdmi_s_pclk;
-	boolean clk_status;
 	void __iomem *qfprom_io;
 	void __iomem *hdmi_io;
 
 	struct external_common_state_type common;
-	boolean hpd_on_offline;
-#if defined(CONFIG_VIDEO_MHL_V1) || defined(CONFIG_VIDEO_MHL_V2) || \
-		defined(CONFIG_VIDEO_MHL_TAB_V2)
-	boolean mhl_hpd_state;
-#endif
-	struct switch_dev	hdmi_audio_switch;
-	struct switch_dev	hdmi_audio_ch;
-	boolean	boot_completion;
+	boolean is_mhl_enabled;
 };
 
 extern struct hdmi_msm_state_type *hdmi_msm_state;
@@ -138,4 +128,12 @@ void hdmi_frame_ctrl_cfg(const struct hdmi_disp_mode_timing_type *timing);
 void hdmi_msm_phy_status_poll(void);
 #endif
 
+#ifdef CONFIG_FB_MSM_HDMI_MSM_PANEL_CEC_SUPPORT
+void hdmi_msm_cec_init(void);
+void hdmi_msm_cec_write_logical_addr(int addr);
+void hdmi_msm_cec_msg_recv(void);
+void hdmi_msm_cec_one_touch_play(void);
+void hdmi_msm_cec_msg_send(struct hdmi_msm_cec_msg *msg);
+#endif /* CONFIG_FB_MSM_HDMI_MSM_PANEL_CEC_SUPPORT */
+void mhl_connect_api(boolean on);
 #endif /* __HDMI_MSM_H__ */

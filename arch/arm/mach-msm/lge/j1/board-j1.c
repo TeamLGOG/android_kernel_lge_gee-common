@@ -3439,6 +3439,9 @@ static void __init apq8064_common_init(void)
 #endif
 /* ehee.lee@lge.com [END] for NFC */
 /* LGE_UPDATE_E */
+
+/* Add Mako Backlight */
+	lge_add_backlight_devices();
 #if !defined(CONFIG_MACH_LGE)
 	apq8064_device_qup_spi_gsbi5.dev.platform_data =
 						&apq8064_qup_spi_gsbi5_pdata;
