@@ -78,6 +78,9 @@ extern void __init register_i2c_backlight_devices(void);
 /* LGE_UPDATE_S. 03042012. yeri.lee@lge.com
    Add Audio init function */
 extern void __init lge_add_sound_devices(void);
+/* Add Mako Backlight */
+extern void __init lge_add_backlight_devices(void);
+
 /* LGE_UPDATE_E */
 void apq8064_init_mmc(void);
 void apq8064_init_gpiomux(void);

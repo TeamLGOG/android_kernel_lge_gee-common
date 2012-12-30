@@ -1,4 +1,5 @@
 /* Copyright (c) 2012, Code Aurora Forum. All rights reserved.
+ * Copyright (c) 2012, LGE Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -13,10 +14,11 @@
 
 #include <linux/init.h>
 #include <linux/platform_device.h>
-#include <linux/msm_kgsl.h>
+#include <mach/kgsl.h>
 #include <mach/msm_bus_board.h>
 #include <mach/board.h>
 #include <mach/msm_dcvs.h>
+#include <mach/socinfo.h>
 
 #include "devices.h"
 #include "board-j1.h"
@@ -248,5 +250,13 @@ struct platform_device device_kgsl_3d0 = {
 
 void __init apq8064_init_gpu(void)
 {
+	unsigned int version = socinfo_get_version();
+
+	if ((SOCINFO_VERSION_MAJOR(version) == 1) &&
+			(SOCINFO_VERSION_MINOR(version) == 1))
+		kgsl_3d0_pdata.chipid = ADRENO_CHIPID(3, 2, 0, 1);
+	else
+		kgsl_3d0_pdata.chipid = ADRENO_CHIPID(3, 2, 0, 0);
+
 	platform_device_register(&device_kgsl_3d0);
 }

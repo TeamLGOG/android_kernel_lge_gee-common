@@ -92,17 +92,11 @@ enum {
 extern int lge_battery_info;
 #endif
 
-#ifdef CONFIG_LCD_KCAL
-struct kcal_data {
-	int red;
-	int green;
-	int blue;
-};
-
+#ifdef CONFIG_LGE_KCAL
 struct kcal_platform_data {
-	int (*set_values) (int r, int g, int b);
-	int (*get_values) (int *r, int *g, int *b);
-	int (*refresh_display) (void);
+	int (*set_values)(int r, int g, int b);
+	int (*get_values)(int *r, int *g, int *b);
+	int (*refresh_display)(void);
 };
 #endif
 
